@@ -15,6 +15,7 @@ namespace DS.Elements
         public List<string> Choices { get; set; }
         public string Text { get; set; }
         public DSDialogueType DialogueType { get; set; }
+        public DSGroup Group { get; set; }
 
         private DSGraphView graphView;
         private Color defaultBackgroundColor;
@@ -40,11 +41,24 @@ namespace DS.Elements
             #region Title Container
             TextField dialogueNameTextField = DSElementUtility.CreateTextField(DialogueName, callback =>
             {
-                graphView.RemoveUngroupedNode(this);
+                if (Group == null)
+                {
+                    graphView.RemoveUngroupedNode(this);
+
+                    DialogueName = callback.newValue;
+
+                    graphView.AddUngroupedNode(this);
+
+                    return;
+                }
+
+                DSGroup currentGroup = Group;
+
+                graphView.RemoveGroupedNode(this, Group);
 
                 DialogueName = callback.newValue;
 
-                graphView.AddUngroupedNode(this);
+                graphView.AddGroupedNode(this, currentGroup);
             });
 
             dialogueNameTextField.AddClasses(
@@ -81,6 +95,18 @@ namespace DS.Elements
             #endregion
         }
 
+        #region Utility
+        private void DisconnectPorts(VisualElement container)
+        {
+            foreach (Port port in container.Children())
+            {
+                if (!port.connected)
+                    continue;
+
+                graphView.DeleteElements(port.connections);
+            }
+        }
+
         public void SetErrorStyle(Color color)
         {
             mainContainer.style.backgroundColor = color;
@@ -90,5 +116,6 @@ namespace DS.Elements
         {
             mainContainer.style.backgroundColor = defaultBackgroundColor;
         }
+        #endregion
     }
 }
