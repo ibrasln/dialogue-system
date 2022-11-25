@@ -1,11 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DS.Windows
 {
+    using Utilities;
+
     public class DSEditorWindow : EditorWindow
     {
         [MenuItem("Tools/Dialogue System Window")]
@@ -21,9 +20,10 @@ namespace DS.Windows
             AddStyles();
         }
 
+        #region Element Addition
         private void AddGraphView()
         {
-            DSGraphView graphView = new();
+            DSGraphView graphView = new(this);
 
             graphView.StretchToParentSize();
 
@@ -32,8 +32,8 @@ namespace DS.Windows
 
         private void AddStyles()
         {
-            StyleSheet styleSheet = (StyleSheet)EditorGUIUtility.Load("DialogueSystem/DSVariables.uss");
-            rootVisualElement.styleSheets.Add(styleSheet);
+            rootVisualElement.AddStyleSheets("DialogueSystem/DSVariables.uss");
         }
+        #endregion
     }
 }

@@ -5,13 +5,15 @@ using UnityEditor.Experimental.GraphView;
 
 namespace DS.Elements
 {
+    using Utilities;
     using Enumerations;
+    using Windows;
 
     public class DSSingleChoiceNode : DSNode
     {
-        public override void Initialize(Vector2 position)
+        public override void Initialize(DSGraphView dsGraphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(dsGraphView, position);
 
             DialogueType = DSDialogueType.SingleChoice;
 
@@ -25,8 +27,7 @@ namespace DS.Elements
             #region Output Container
             foreach (string choice in Choices)
             {
-                Port choicePort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
-                choicePort.portName = choice;
+                Port choicePort = this.CreatePort(choice);
                 outputContainer.Add(choicePort);
             }
             #endregion

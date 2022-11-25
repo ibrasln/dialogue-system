@@ -5,23 +5,31 @@ using UnityEngine;
 
 namespace DS.Elements
 {
+    using Windows;
     using Enumerations;
+    using Utilities;
 
     public class DSNode : Node
     {
         public string DialogueName { get; set; }
         public List<string> Choices { get; set; }
         public string Text { get; set; }
-
         public DSDialogueType DialogueType { get; set; }
 
-        public virtual void Initialize(Vector2 position)
+        private DSGraphView graphView;
+        private Color defaultBackgroundColor;
+
+        public virtual void Initialize(DSGraphView dsGraphView, Vector2 position)
         {
             DialogueName = "Dialogue Name";
             Choices = new();
             Text = "Dialogue text.";
 
+            graphView = dsGraphView;
+
             SetPosition(new Rect(position, Vector2.zero));
+
+            defaultBackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
 
             mainContainer.AddToClassList("ds-node__main-container");
             extensionContainer.AddToClassList("ds-node__extension-container");
@@ -30,18 +38,26 @@ namespace DS.Elements
         public virtual void Draw()
         {
             #region Title Container
-            TextField dialogueNameTextField = new() { value = DialogueName };
+            TextField dialogueNameTextField = DSElementUtility.CreateTextField(DialogueName, callback =>
+            {
+                graphView.RemoveUngroupedNode(this);
 
-            dialogueNameTextField.AddToClassList("ds-node__textfield");
-            dialogueNameTextField.AddToClassList("ds-node__filename-textfield");
-            dialogueNameTextField.AddToClassList("ds-node__textfield__hidden");
+                DialogueName = callback.newValue;
+
+                graphView.AddUngroupedNode(this);
+            });
+
+            dialogueNameTextField.AddClasses(
+                "ds-node__textfield",
+                "ds-node__filename-textfield",
+                "ds-node__textfield__hidden"
+                );
 
             titleContainer.Insert(0, dialogueNameTextField);
             #endregion
 
             #region Input Container
-            Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            inputPort.portName = "Dialogue Connection";
+            Port inputPort = this.CreatePort("Dialogue Connection", Orientation.Horizontal, Direction.Input, Port.Capacity.Multi);
             inputContainer.Add(inputPort);
             #endregion
 
@@ -50,16 +66,29 @@ namespace DS.Elements
 
             customDataContainer.AddToClassList("ds-node__custom-data-container");
 
-            Foldout textFoldout = new() { text = "Dialogue Text" };
-            TextField textTextField = new() { value = Text };
+            Foldout textFoldout = DSElementUtility.CreateFoldout("Dialogue Text");
 
-            textTextField.AddToClassList("ds-node__textfield");
-            textTextField.AddToClassList("ds-node__quote-textfield");
+            TextField textTextField = DSElementUtility.CreateTextArea(Text);
+
+            textTextField.AddClasses(
+                "ds-node__textfield",
+                "ds-node__quote-textfield"
+                );
 
             textFoldout.Add(textTextField); 
             customDataContainer.Add(textFoldout);
             extensionContainer.Add(customDataContainer);
             #endregion
+        }
+
+        public void SetErrorStyle(Color color)
+        {
+            mainContainer.style.backgroundColor = color;
+        }
+
+        public void ResetStyle()
+        {
+            mainContainer.style.backgroundColor = defaultBackgroundColor;
         }
     }
 }
