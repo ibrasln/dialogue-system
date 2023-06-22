@@ -1,2 +1,2 @@
 # dialogue-system
-I'm learning to creating a Dialogue System from this channel: https://www.youtube.com/@IndieWafflus
+I'm learning to create a Dialogue System from this channel: https://www.youtube.com/@IndieWafflus
